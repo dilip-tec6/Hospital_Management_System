@@ -1,6 +1,7 @@
 """Main entry point for the Hospital Management System API."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.routers.patient_router import router as patient_router
 from api.routers.doctor_router import router as doctor_router
@@ -12,6 +13,15 @@ app = FastAPI(
     title="Hospital Management System API",
     description="REST API for managing patients, doctors, appointments, medical records, and billing.",
     version="1.0.0",
+)
+
+# Allow the React dev server to call this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register routers
