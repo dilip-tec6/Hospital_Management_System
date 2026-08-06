@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from models.appointment import Appointment
 from services.appointment_service import AppointmentService
 
+from models.medical_record import MedicalRecord
+from services.medical_record_service import MedicalRecordService
+
 def demo_patient_management() -> None:
     """Demonstrate PatientService CRUD operations."""
     patient_service = PatientService()
@@ -95,4 +98,39 @@ if __name__ == "__main__":
     demo_patient_management()
     demo_doctor_management()
     demo_appointment_management()
-    
+
+def demo_medical_record_management() -> None:
+    """Demonstrate MedicalRecordService CRUD operations."""
+    record_service = MedicalRecordService()
+
+    # Note: patient_id and doctor_id must reference existing rows.
+    new_record = MedicalRecord(
+        patient_id=1,
+        doctor_id=1,
+        diagnosis="Seasonal flu",
+        prescription="Paracetamol 500mg, twice daily for 5 days",
+        notes="Advised rest and hydration.",
+    )
+    created_record = record_service.create_medical_record(new_record)
+    print(f"Created: {created_record}")
+
+    for r in record_service.get_all_medical_records():
+        print(r)
+
+    found_record = record_service.get_medical_record_by_id(created_record.record_id)
+    print(f"Fetched: {found_record}")
+
+    patient_history = record_service.get_records_by_patient_id(1)
+    print(f"Patient history: {patient_history}")
+
+    found_record.notes = "Follow-up in 1 week if symptoms persist."
+    record_service.update_medical_record(found_record)
+
+    record_service.delete_medical_record(found_record.record_id)
+
+
+if __name__ == "__main__":
+    demo_patient_management()
+    demo_doctor_management()
+    demo_appointment_management()
+    demo_medical_record_management()
