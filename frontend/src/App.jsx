@@ -1,11 +1,16 @@
-import Patients from "./pages/Patients";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing/Landing";
+import Patients from "./pages/Patients/Patients";
+import "./styles/global.css";
 
 function App() {
   return (
-    <div className="App">
-      <Patients />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/patients" element={<Patients />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
