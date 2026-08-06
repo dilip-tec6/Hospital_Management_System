@@ -10,6 +10,12 @@ from services.appointment_service import AppointmentService
 from models.medical_record import MedicalRecord
 from services.medical_record_service import MedicalRecordService
 
+from decimal import Decimal
+from datetime import date
+
+from models.billing import Billing
+from services.billing_service import BillingService
+
 def demo_patient_management() -> None:
     """Demonstrate PatientService CRUD operations."""
     patient_service = PatientService()
@@ -134,3 +140,39 @@ if __name__ == "__main__":
     demo_doctor_management()
     demo_appointment_management()
     demo_medical_record_management()
+
+def demo_billing_management() -> None:
+    """Demonstrate BillingService CRUD operations."""
+    billing_service = BillingService()
+
+    # Note: patient_id must reference an existing patient row.
+    new_bill = Billing(
+        patient_id=1,
+        amount=Decimal("1500.00"),
+        payment_status="Pending",
+    )
+    created_bill = billing_service.create_bill(new_bill)
+    print(f"Created: {created_bill}")
+
+    for b in billing_service.get_all_bills():
+        print(b)
+
+    found_bill = billing_service.get_bill_by_id(created_bill.bill_id)
+    print(f"Fetched: {found_bill}")
+
+    patient_bills = billing_service.get_bills_by_patient_id(1)
+    print(f"Patient bills: {patient_bills}")
+
+    found_bill.payment_status = "Paid"
+    found_bill.payment_date = date.today()
+    billing_service.update_bill(found_bill)
+
+    billing_service.delete_bill(found_bill.bill_id)
+
+
+if __name__ == "__main__":
+    demo_patient_management()
+    demo_doctor_management()
+    demo_appointment_management()
+    demo_medical_record_management()
+    demo_billing_management()
