@@ -1,30 +1,30 @@
-from database.connection import get_connection
+from models.patient import Patient
+from services.patient_service import PatientService
 
-def main():
-    try:
-        conn = get_connection()
-        print("✅ Connected to PostgreSQL successfully!")
+patient_service = PatientService()
 
-        cursor = conn.cursor()
-        cursor.execute("SELECT version();")
+# Example: create a patient
+new_patient = Patient(
+    first_name="John",
+    last_name="Doe",
+    gender="Male",
+    phone="9800000000",
+    blood_group="O+",
+)
+created = patient_service.create_patient(new_patient)
+print(f"Created: {created}")
 
-        version = cursor.fetchone()
-        print(version[0])
+# Example: list all patients
+for p in patient_service.get_all_patients():
+    print(p)
 
-        cursor.close()
-        conn.close()
+# Example: fetch one
+found = patient_service.get_patient_by_id(created.patient_id)
+print(f"Fetched: {found}")
 
-    except Exception as e:
-        print("❌ Connection failed!")
-        print(e)
+# Example: update
+found.phone = "9811111111"
+patient_service.update_patient(found)
 
-if __name__ == "__main__":
-    main()
-
-# import os
-# from dotenv import load_dotenv
-
-# load_dotenv()
-
-# print("DB_USER =", os.getenv("DB_USER"))
-# print("DB_NAME =", os.getenv("DB_NAME"))
+# Example: delete
+patient_service.delete_patient(found.patient_id)
