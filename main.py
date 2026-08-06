@@ -2,7 +2,10 @@ from models.patient import Patient
 from services.patient_service import PatientService
 from models.doctor import Doctor
 from services.doctor_service import DoctorService
+from datetime import datetime, timedelta
 
+from models.appointment import Appointment
+from services.appointment_service import AppointmentService
 
 def demo_patient_management() -> None:
     """Demonstrate PatientService CRUD operations."""
@@ -59,3 +62,37 @@ def demo_doctor_management() -> None:
 if __name__ == "__main__":
     demo_patient_management()
     demo_doctor_management()
+
+def demo_appointment_management() -> None:
+    """Demonstrate AppointmentService CRUD operations."""
+    appointment_service = AppointmentService()
+
+    # Note: patient_id and doctor_id must reference existing rows,
+    # e.g. IDs created in demo_patient_management() / demo_doctor_management().
+    new_appointment = Appointment(
+        patient_id=1,
+        doctor_id=1,
+        appointment_date=datetime.now() + timedelta(days=1),
+    )
+    created_appointment = appointment_service.create_appointment(new_appointment)
+    print(f"Created: {created_appointment}")
+
+    for a in appointment_service.get_all_appointments():
+        print(a)
+
+    found_appointment = appointment_service.get_appointment_by_id(
+        created_appointment.appointment_id
+    )
+    print(f"Fetched: {found_appointment}")
+
+    found_appointment.status = "Completed"
+    appointment_service.update_appointment(found_appointment)
+
+    appointment_service.delete_appointment(found_appointment.appointment_id)
+
+
+if __name__ == "__main__":
+    demo_patient_management()
+    demo_doctor_management()
+    demo_appointment_management()
+    
