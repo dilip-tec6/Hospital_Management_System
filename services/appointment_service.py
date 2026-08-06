@@ -31,17 +31,29 @@ class AppointmentService:
             raise ValueError("patient_id and doctor_id are required.")
         if not appointment.appointment_date:
             raise ValueError("appointment_date is required.")
+        if not appointment.appointment_time:
+            raise ValueError("appointment_time is required.")
 
         query = """
             INSERT INTO appointments
-                (patient_id, doctor_id, appointment_date, status)
-            VALUES (%s, %s, %s, %s)
-            RETURNING appointment_id;
+                (
+                    patient_id,
+                    doctor_id,
+                    appointment_date,
+                    appointment_time,
+                    reason,
+                    status
+                )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING appointment_id, created_at;
         """
+
         values = (
             appointment.patient_id,
             appointment.doctor_id,
             appointment.appointment_date,
+            appointment.appointment_time,
+            appointment.reason,
             appointment.status,
         )
 
@@ -49,7 +61,10 @@ class AppointmentService:
         cursor = connection.cursor()
         try:
             cursor.execute(query, values)
-            appointment.appointment_id = cursor.fetchone()[0]
+            (
+                appointment.appointment_id,
+                appointment.created_at,
+            ) = cursor.fetchone()
             connection.commit()
             return appointment
         except psycopg2.Error:
@@ -66,7 +81,7 @@ class AppointmentService:
         Returns:
             A list of Appointment instances.
         """
-        query = "SELECT * FROM appointments ORDER BY appointment_date;"
+        query = "SELECT * FROM appointments ORDER BY appointment_date, appointment_time;"
 
         connection = get_connection()
         cursor = connection.cursor()
@@ -127,13 +142,18 @@ class AppointmentService:
             SET patient_id = %s,
                 doctor_id = %s,
                 appointment_date = %s,
+                appointment_time = %s,
+                reason = %s,
                 status = %s
             WHERE appointment_id = %s;
         """
+
         values = (
             appointment.patient_id,
             appointment.doctor_id,
             appointment.appointment_date,
+            appointment.appointment_time,
+            appointment.reason,
             appointment.status,
             appointment.appointment_id,
         )
